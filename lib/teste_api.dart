@@ -24,7 +24,7 @@ class _TesteApiState extends State<TesteApi> {
         mensagem = 'Api respondeu  com erro ${resposta.statusCode}';
       }
     } catch (erro) {
-      mensagem = 'Não conectou rro: $erro';
+      mensagem = 'Não conectou rro: $erro'; //commit :)
     }
   }
 
