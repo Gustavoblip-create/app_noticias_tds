@@ -1,3 +1,5 @@
+import 'package:app_noticias/model/noticia.dart';
+import 'package:app_noticias/service/noticias_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,6 +13,18 @@ class TesteApi extends StatefulWidget {
 class _TesteApiState extends State<TesteApi> {
   String mensagem = 'toque no botão para testar';
 
+  final NoticiasService _noticiasService = NoticiasService();
+  late Future<List<Noticia>> _listanoticias;
+
+  Future<void> carregarNoticia() async {
+    _listanoticias = _noticiasService.getNoticias();
+
+    List<Noticia> noticia = await _listanoticias;
+
+    print('---Teste de console--- ');
+    print('Qauntidade de noticias: ${noticia.length}');
+  }
+
   Future<void> testar() async {
     try {
       final resposta = await http.get(
@@ -19,7 +33,6 @@ class _TesteApiState extends State<TesteApi> {
 
       if (resposta.statusCode == 200) {
         mensagem = 'conectou com sucesso';
-        print('Sucesso:${resposta.body}');
       } else {
         mensagem = 'Api respondeu  com erro ${resposta.statusCode}';
       }
@@ -42,6 +55,11 @@ class _TesteApiState extends State<TesteApi> {
             const SizedBox(
               height: 16,
             ),
+            ElevatedButton(
+              onPressed: carregarNoticia,
+              child: Text('Carregar Noticia'),
+            ),
+
             Text(mensagem),
           ],
         ),

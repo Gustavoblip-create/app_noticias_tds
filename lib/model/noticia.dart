@@ -25,7 +25,7 @@ class Noticia {
       conteudo: json['conteudo'],
       categoriaId: json['categoria_id'],
       imagem: json['imagem'],
-      createdAt: DateTime.parse(json['created_At']),
+      createdAt: DateTime.parse(json['created_at']),
     );
   }
 
