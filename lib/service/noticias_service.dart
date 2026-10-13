@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:app_noticias/model/noticia.dart';
 import 'package:http/http.dart' as http;
 
