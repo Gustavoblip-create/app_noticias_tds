@@ -9,7 +9,7 @@ class CategoriaService {
 
   Future<List<Categoria>> getCategorias() async {
     try {
-      final resposta = await http.get(Uri.parse('$baseUrl Categoria'));
+      final resposta = await http.get(Uri.parse('$baseUrl/categoria'));
       if (resposta.statusCode == 200) {
         final List dados = jsonDecode(resposta.body);
         return dados.map((item) => Categoria.fromJson(item)).toList();
