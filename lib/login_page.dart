@@ -1,3 +1,4 @@
+import 'package:app_noticias/service/login_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,6 +11,40 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final LoginService _loginService = LoginService();
+
+  bool _carregando = false;
+  String? _mensagemErro;
+
+  Future<void> autenticar() async {
+    setState(() {
+      _carregando = true;
+      _mensagemErro = null;
+    });
+    try {
+      final nome = await _loginService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ususario : $nome está logado '),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      setState(() {
+        _mensagemErro = e.toString().replaceFirst('Exception', '');
+      });
+    } finally {
+      setState(() {
+        _carregando = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +79,6 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'senha',
-
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -52,8 +86,16 @@ class _LoginPageState extends State<LoginPage> {
                 height: 20,
               ),
               ElevatedButton(
-                onPressed: () {},
-                child: const Text('Entrar'),
+                onPressed: _carregando ? null : autenticar,
+                child: _carregando
+                    ? SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text('Entrar'),
               ),
             ],
           ),
