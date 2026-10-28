@@ -38,4 +38,20 @@ class LoginService {
       throw Exception('Resposta inváçida do servidor');
     }
   }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('nome');
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<String?> getNome() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('nome');
+  }
 }

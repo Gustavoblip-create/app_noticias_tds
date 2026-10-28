@@ -5,6 +5,7 @@ import 'package:app_noticias/model/noticia.dart';
 // import 'package:app_noticias/models/categoria.dart';
 // import 'package:app_noticias/models/noticia.dart';
 import 'package:app_noticias/service/categorias_service.dart';
+import 'package:app_noticias/service/login_service.dart';
 import 'package:app_noticias/service/noticias_service.dart';
 // import 'package:app_noticias/services/categorias_services.dart';
 // import 'package:app_noticias/services/noticias_service.dart';
@@ -22,12 +23,15 @@ class _HomePageState extends State<HomePage> {
   final NoticiasService _noticiasService = NoticiasService();
   late Future<List<Noticia>> _listaNoticias;
   final CategoriaService _categoriasService = CategoriaService();
+  final LoginService _loginService = LoginService();
 
   List<Categoria> _listaCategorias = [];
   String _categoriaSelecionada = 'Todas';
 
   bool _buscando = false;
   String _textoPesquisa = '';
+
+  bool _logado = false;
 
   void carregarDados() {
     _listaNoticias = _noticiasService.getNoticias();
@@ -68,11 +72,19 @@ class _HomePageState extends State<HomePage> {
     return noticias;
   }
 
+  Future<void> _checarSessao() async {
+    final token = await _loginService.getToken();
+    if (!mounted) return;
+    setState(() {
+      _logado = token != null && token.isNotEmpty;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _listaNoticias = _noticiasService.getNoticias();
-    carregarCategorias();
+    carregarDados();
+    _checarSessao();
   }
 
   @override
@@ -141,20 +153,44 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            Divider(),
-            ListTile(
-              leading: const Icon(Icons.login),
-              title: const Text('Entrar'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
+            const Divider(),
+
+            _logado
+                ? ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text('sair'),
+                    onTap: () async {
+                      await _loginService.logout();
+                      if (!mounted) return;
+                      Navigator.pop(context);
+
+                      await _checarSessao();
+
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('você saiu da sua conata'),
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    },
+                  )
+                : ListTile(
+                    leading: const Icon(Icons.login),
+                    title: const Text('Entrar'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final autenticado = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
+                      );
+                      if (autenticado == true) {
+                        await _checarSessao();
+                      }
+                    },
                   ),
-                );
-              },
-            ),
           ],
         ),
       ),
